@@ -14,8 +14,9 @@ import json
 import random
 from colorama import init
 from colorama import Fore, Back, Style
-from os import system, name 
+from os import system, name, path 
 import smtplib
+import time
 
 class message:
     def __init__(self, frommail, tomail, objectmessage, text):
@@ -28,17 +29,18 @@ class message:
         main()
  
 class SMTP_server:
-    def __init__(self, name, port, login, pwd):
+    def __init__(self, name, port, login, pwd, delay):
         self.name = name
         self.port = port
         self.login = login
         self.pwd = pwd
+        self.delay = delay
 
     def check(self):
         print(Fore.GREEN + '\nSMPT Server: '+ Fore.WHITE+ self.name, Fore.GREEN +'\nSMTP Server port: '+ Fore.WHITE+ str(self.port),Fore.GREEN +'\nSMTP Server login: '+ Fore.WHITE + self.login,Fore.GREEN +'\nSMTP Server password: '+ Fore.WHITE + self.pwd + Fore.WHITE)
         main()
 
-server = SMTP_server("yandex.com", 485, "", "")
+server = SMTP_server("yandex.com", 485, "", "", "")
 message = message('', '', '', '')
 
 banner_1 = '''{0}
@@ -90,37 +92,54 @@ def do_banner():
 
 do_banner()
 def check_emails():
-    import json
-    f = open('mail.json',)
-    data = json.load(f)
-    print('')
-    mailnumber = 0
-    print('There is', len(data['mails']), 'adresses: ') 
-    for i in data['mails']:
-        mailnumber += 1
-        if i['wasUsed']:
-            print(Fore.GREEN, '[',mailnumber,']', i['email'],  Fore.WHITE)
-        else: 
-            print(Fore.RED,'[',mailnumber,']',  i['email'],  Fore.WHITE)
-        if mailnumber >= 3:
-            print(Fore.LIGHTGREEN_EX, 'And', len(data['mails']) - mailnumber, 'more...' + Fore.WHITE)
-            break
-    f.close()
+    if path.exists("mail.json"):
+        f = open('mail.json',)
+        data = json.load(f)
+        print('')
+        mailnumber = 0
+        print('There is', len(data['mails']), 'adresses: ') 
+        for i in data['mails']:
+            mailnumber += 1
+            if not i['wasUsed']:
+                print(Fore.GREEN, '[',mailnumber,']', i['email'],  Fore.WHITE)
+            else: 
+                print(Fore.RED,'[',mailnumber,']',  i['email'],  Fore.WHITE)
+            if (mailnumber >= 3) and (len(data['mails']) - mailnumber != 0):
+                print(Fore.LIGHTGREEN_EX, 'And', len(data['mails']) - mailnumber, 'more...' + Fore.WHITE)
+                break
+        f.close()
+    else:
+        create_db()
+        check_emails()
     main()
+
+def validate_emails():
+    valide = []
+    f = open('mail.json')
+    data = json.load(f)
+    i = 0
+    for i in data['mails']:
+        if i['wasUsed'] == False:
+            valide.append(i)
+    return valide
+
 
 
 def send_email():
-    try: 
-        smtpObj = smtplib.SMTP_SSL('smtp.yandex.com', 465)
-        smtpObj.ehlo()
-        smtpObj.login('an0n.q@yandex.ru','ekyokolaosjxrrbj')
-        message = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (server.login, 'blueheadmtd@ya.ru', '', 'email_text')
-        smtpObj.sendmail("an0n.q@yandex.ru","blueheadmtd@ya.ru", message)
-        smtpObj.quit()
-        print(Fore.GREEN, 'Сообщение отправлено!', Fore.WHITE)
-    except:
-        print(smtplib.SMTPResponseException)
-        print(Fore.RED + "None" + Fore.WHITE)
+    valide = validate_emails()
+    i = 0
+    for i in range(0, len(valide)):
+        try: 
+            smtpObj = smtplib.SMTP_SSL('smtp.yandex.com', 465)
+            smtpObj.ehlo()
+            smtpObj.login('an0n.q@yandex.ru','ekyokolaosjxrrbj')
+            message = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (server.login, 'blueheadmtd@ya.ru', '', 'email_text')
+            smtpObj.sendmail("an0n.q@yandex.ru","blueheadmtd@ya.ru", message)
+            smtpObj.quit()
+            print(Fore.GREEN, 'Сообщение отправлено!', Fore.WHITE)
+        except:
+            print(smtplib.SMTPResponseException)
+            print(Fore.RED + "None" + Fore.WHITE)
     main()
 
 def clear():
@@ -136,6 +155,7 @@ def set_smtp():
         server.login = input(Fore.GREEN + '\nSet Login: '+ Fore.WHITE)
         server.port = input(Fore.GREEN + '\nSet Port: '+ Fore.WHITE)
         server.pwd = input(Fore.GREEN + '\nSet Password: '+ Fore.WHITE)
+        server.delay = int(input(Fore.GREEN + '\nSet Send delay (sec)' + Fore.WHITE))
         main()
     except:
         print(Fore.RED + 'Error!' + Fore.WHITE)
@@ -150,28 +170,42 @@ def set_email():
         print(Fore.RED + '\nSomething went wrong\nPlease try again or leave bug-report' + Fore.WHITE)
     main()
 
+def create_db():
+    print(Fore.YELLOW + "\nCreating database file...\n" + Fore.WHITE)
+    with open("mail.json", "w") as outfile:
+            data = {}
+            data['mails'] = []
+            json.dump(data, outfile)
+
 def write_json(data): 
     with open('mail.json','w') as f: 
         json.dump(data, f, indent=4) 
 
 def addAddress():
-    toUpdate = {}
-    address = input('Input address one or more with comma: ')
-    addresslist = address.split(',')
-    for i in addresslist:
-        if i.find('@') != -1:
-            toUpdate = {"email": i, "wasUsed": False}
-            with open("mail.json") as file:
-                data = json.load(file)
-                newdata = data['mails']
-                if not (next((item for item in newdata if item["email"] == i), False)):
-                    newdata.append(toUpdate)
-                    write_json(data)
-                else: 
-                    print(Fore.RED + i + " Already exist!" + Fore.WHITE)
-        else:
-            print(Fore.RED + "ERROR! Please check email: " + Fore.LIGHTRED_EX + i + Fore.WHITE)
-    
+    if path.exists("mail.json"):
+        toUpdate = {}
+        address = input('Input address one or more with comma: ')
+        address = address.replace(', ', ',')
+        addresslist = address.split(',')
+        for i in addresslist:
+            if i.find('@') != -1:
+                toUpdate = {"email": i, "wasUsed": False}
+                with open("mail.json") as file:
+                    data = json.load(file)
+                    newdata = data['mails']
+                    if not (next((item for item in newdata if item["email"] == i), False)):
+                        newdata.append(toUpdate)
+                        write_json(data)
+                    else: 
+                        print(Fore.RED + i + " Already exist!" + Fore.WHITE)
+            else:
+                print(Fore.RED + "ERROR! Please check email: " + Fore.LIGHTRED_EX + i + Fore.WHITE)
+    else:
+        create_db()
+        addAddress()
+
+
+        
     main()
 
 
