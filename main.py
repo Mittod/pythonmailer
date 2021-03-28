@@ -40,7 +40,7 @@ class SMTP_server:
         print(Fore.GREEN + '\nSMPT Server: '+ Fore.WHITE+ self.name, Fore.GREEN +'\nSMTP Server port: '+ Fore.WHITE+ str(self.port),Fore.GREEN +'\nSMTP Server login: '+ Fore.WHITE + self.login,Fore.GREEN +'\nSMTP Server password: '+ Fore.WHITE + self.pwd + Fore.WHITE)
         main()
 
-server = SMTP_server("yandex.com", 485, "", "", "")
+server = SMTP_server("", 666, "", "", "")
 message = message('', '', '', '')
 
 banner_1 = '''{0}
@@ -123,23 +123,34 @@ def validate_emails():
             valide.append(i)
     return valide
 
+def configCreate():
+    if path.exists("config.json"):
+    
+        with open("config.json") as f:
+            config = json.load(f)
+            config['config'].append({"SMTP Adress" : 'test', "SMTP Login": 'server.login', "SMTP Password": 'server.pwd', "SMTP Port": 'server.port'})
+    else:
+        with open("config.json", "w") as file:
+            data = {}
+            data['config'] = []
+            json.dump(data, file)
+        configCreate()
+
 
 
 def send_email():
     valide = validate_emails()
-    i = 0
-    for i in range(0, len(valide)):
+    for i in valide:
         try: 
-            smtpObj = smtplib.SMTP_SSL('smtp.yandex.com', 465)
+            smtpObj = smtplib.SMTP_SSL(server.name, server.port)
             smtpObj.ehlo()
-            smtpObj.login('an0n.q@yandex.ru','ekyokolaosjxrrbj')
-            message = 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (server.login, 'blueheadmtd@ya.ru', '', 'email_text')
-            smtpObj.sendmail("an0n.q@yandex.ru","blueheadmtd@ya.ru", message)
+            smtpObj.login(server.login, server.pwd)
+            smtpObj.sendmail(message.frommail, i['email'], 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (message.frommail, i['email'], message.objectmessage, message.text))
             smtpObj.quit()
-            print(Fore.GREEN, 'Сообщение отправлено!', Fore.WHITE)
+            print(Fore.GREEN, '''[ {0} ] {1} complete!'''.format(0, i['email']), Fore.WHITE )
         except:
-            print(smtplib.SMTPResponseException)
-            print(Fore.RED + "None" + Fore.WHITE)
+            print(Fore.RED, '''[ {0} ] {1} failed!'''.format(1, i['email']), Fore.WHITE)
+        time.sleep(server.delay)
     main()
 
 def clear():
@@ -152,13 +163,14 @@ def clear():
 def set_smtp():
     try:
         server.name = input(Fore.GREEN + '\nSet Server name: '+ Fore.WHITE)
-        server.login = input(Fore.GREEN + '\nSet Login: '+ Fore.WHITE)
         server.port = input(Fore.GREEN + '\nSet Port: '+ Fore.WHITE)
+        server.login = input(Fore.GREEN + '\nSet Login: '+ Fore.WHITE)
         server.pwd = input(Fore.GREEN + '\nSet Password: '+ Fore.WHITE)
-        server.delay = int(input(Fore.GREEN + '\nSet Send delay (sec)' + Fore.WHITE))
+        #server.delay = int(input(Fore.GREEN + '\nSet Send delay (sec)' + Fore.WHITE))
         main()
     except:
         print(Fore.RED + 'Error!' + Fore.WHITE)
+    configCreate()
 
 def set_email():
     try: 
@@ -209,10 +221,12 @@ def addAddress():
     main()
 
 
+
+
 def main():
     print(Fore.BLUE + '''
     [0] Check e-mails                 [3] Check SMTP settings                 [6]Add address to DB
-    [1] Send e-mail                   [4] Check e-mail settings
+    [1] Send e-mail                   [4] Check e-mail settings               [7]Create configure file
     [2] Set SMTP                      [5] Set e-mail settings
     
     [69] Quit                         [99] Clear ''' + Fore.WHITE)
