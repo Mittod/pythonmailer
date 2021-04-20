@@ -1,14 +1,6 @@
-# Code version: 0.0.1 
-# Build from: 09.02.2021 00:01
+# Code version: 0.04 
+# Build from: 20.04.2021 00:01
 # Created By Mittod
-#-----------------------------------------------------------------------------------------------------------------------------------#
-#   TO DO:                                                                                                                          #
-#       -- Header ASCCI                                                                                                             #
-#       -- More settings, like a a lot of adresses email to send. Timer, custom text, custom SMTP, something else.                  #
-#       -- GITHUB                                                                                                                   #
-#       -- Crossplatform                                                                                                            #
-#-----------------------------------------------------------------------------------------------------------------------------------#
-
 
 import json
 import random
@@ -23,7 +15,7 @@ class message:
         self.frommail = frommail
         self.tomail = tomail 
         self.objectmessage = objectmessage
-        self.text = text  #locate to file or text --> ? 
+        self.text = text
     def check(self):
         print(Fore.GREEN + '\nFrom: ' + Fore.WHITE + self.frommail, Fore.GREEN + '\nTo: ' + Fore.WHITE + self.tomail, Fore.GREEN + '\nObject: ' + Fore.WHITE + self.objectmessage, Fore.GREEN + '\nText: ' + Fore.WHITE + self.text)
         main()
@@ -136,21 +128,49 @@ def configCreate():
             json.dump(data, file)
         configCreate()
 
+def send(i):
+    try: 
+        smtpObj = smtplib.SMTP_SSL(server.name, server.port)
+        smtpObj.ehlo()
+        smtpObj.login(server.login, server.pwd)
+        smtpObj.sendmail(message.frommail, i['email'], 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (message.frommail, i['email'], message.objectmessage, message.text))
+        smtpObj.quit()
+        print(Fore.GREEN + '''[ {0} ] {1} complete!'''.format(0, i['email']) + Fore.WHITE )
+    except:
+        print(Fore.RED + '''[ {0} ] {1} failed!'''.format(1, i['email']) + Fore.WHITE)
 
+
+def searchdb(t):
+    f = open('mail.json')
+    data = json.load(f)
+    for i in data['mails']:
+        if t == i["email"]: 
+            return True
+        else: 
+            return False
+    
 
 def send_email():
+    flag = int(input('''\n{0}[ 0 ] Send one email\n[ 1 ] Send all possible\n[ 2 ] Send all email in db\n\n{1}Choose function: {2}'''.format(Fore.MAGENTA, Fore.CYAN, Fore.WHITE)))
     valide = validate_emails()
-    for i in valide:
-        try: 
-            smtpObj = smtplib.SMTP_SSL(server.name, server.port)
-            smtpObj.ehlo()
-            smtpObj.login(server.login, server.pwd)
-            smtpObj.sendmail(message.frommail, i['email'], 'From: %s\nTo: %s\nSubject: %s\n\n%s' % (message.frommail, i['email'], message.objectmessage, message.text))
-            smtpObj.quit()
-            print(Fore.GREEN, '''[ {0} ] {1} complete!'''.format(0, i['email']), Fore.WHITE )
-        except:
-            print(Fore.RED, '''[ {0} ] {1} failed!'''.format(1, i['email']), Fore.WHITE)
-        time.sleep(server.delay)
+    if flag == 0:
+        target = input('''{0}Please enter email adress: {1}'''.format(Fore.YELLOW, Fore.WHITE))
+        if searchdb(target):
+            print('ok!')
+        else: 
+            print(Fore.RED + "Something went wrong. I can't see that email adress in db." + Fore.RESET)
+            ask = input("Do you want add it at db? (yes/no): ")
+            if ask.lower() == "yes":
+                print('''Adding to db ...'''.format(Fore.GREEN))
+                addAddress(target)
+                #adding to db...
+            elif ask.lower() == "no":
+                target = {'email': target, 'wasUsed' : False}
+                send(target)
+    elif flag == 1:
+        for i in valide:
+            send(i)
+            time.sleep(server.delay)
     main()
 
 def clear():
@@ -193,10 +213,13 @@ def write_json(data):
     with open('mail.json','w') as f: 
         json.dump(data, f, indent=4) 
 
-def addAddress():
+def addAddress(target):
     if path.exists("mail.json"):
         toUpdate = {}
-        address = input('Input address one or more with comma: ')
+        if target == None:
+            address = input('Input address one or more with comma: ')
+        else:
+            address = target
         address = address.replace(', ', ',')
         addresslist = address.split(',')
         for i in addresslist:
@@ -205,49 +228,73 @@ def addAddress():
                 with open("mail.json") as file:
                     data = json.load(file)
                     newdata = data['mails']
-                    if not (next((item for item in newdata if item["email"] == i), False)):
-                        newdata.append(toUpdate)
-                        write_json(data)
-                    else: 
+                    if (next((item for item in newdata if item["email"] == i), False)):
                         print(Fore.RED + i + " Already exist!" + Fore.WHITE)
+                        continue
+                    newdata.append(toUpdate)
+                    write_json(data)        
             else:
                 print(Fore.RED + "ERROR! Please check email: " + Fore.LIGHTRED_EX + i + Fore.WHITE)
     else:
         create_db()
-        addAddress()
+        addAddress(target)
+    #main()
 
 
-        
+def converter():
+    pathfile = input("Enter path to txt file: ")
+    if path.exists(pathfile):
+        with open(pathfile, 'r') as file: 
+            f = file.read()
+            f = f.split('\n')
+            for x in f:
+                target = x.split(':')[0]
+                addAddress(target)
+    else:
+        clear()
+        time.sleep(0.1)
+        print(Fore.RED+"Wrong path to file"+ Fore.RESET)
+        converter()
     main()
-
-
 
 
 def main():
     print(Fore.BLUE + '''
-    [0] Check e-mails                 [3] Check SMTP settings                 [6]Add address to DB
-    [1] Send e-mail                   [4] Check e-mail settings               [7]Create configure file
-    [2] Set SMTP                      [5] Set e-mail settings
+    [0] Check e-mails                 [3] Check SMTP settings                 [6] Add address to DB
+    [1] Send e-mail                   [4] Check e-mail settings               [7] Create configure file
+    [2] Set SMTP                      [5] Set e-mail settings                 [8] Add mails from file
     
     [69] Quit                         [99] Clear ''' + Fore.WHITE)
-    count = int(input(Fore.CYAN + '\nChoose function: ' + Fore.WHITE))
+    
+    try:
+        count = int(input(Fore.CYAN + '\nChoose function: ' + Fore.WHITE))
+    except:
+        print(Fore.RED+"It's not a number!" + Fore.RESET)
+        time.sleep(0.5)
+        clear()
     if count == 0:
         check_emails()
-    if count == 1:
+    elif count == 1:
         send_email()
-    if count == 2:
+    elif count == 2:
         set_smtp()
-    if count == 3:
+    elif count == 3:
         server.check()
-    if count == 4:
+    elif count == 4:
         message.check()
-    if count == 5:
+    elif count == 5:
         set_email()
-    if count == 6:
-        addAddress()
-    if count == 69:
-        quit()
-    if count == 99:
+    elif count == 6:
+        addAddress(None)
+        time.sleep(0.5)
         clear()
-
+    elif count == 8:
+        converter()
+    elif count == 69:
+        quit()
+    elif count == 99:
+        clear()
+    else:
+        print(Fore.RED + "Function is undefinded, please try again" + Fore.RESET)
+        main()
 main()
