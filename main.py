@@ -56,7 +56,7 @@ MMMMMMMMb.         d8MM8tt8MM
      MM8ttt88MM" " "MMNICKMM"
      3M88888MM"      "MMMP"
       "MNICKM"
- {1}'''.format(Fore.MAGENTA, Fore.WHITE)
+ {1}                                                - SCRIPT CREATED BY MITTOD'''.format(Fore.BLUE, Fore.WHITE)
 
 banner_2 = '''{0}
             ._                                            ,
@@ -84,11 +84,21 @@ banner_2 = '''{0}
                                   \  |
                                    VV {1}'''.format(Fore.RED, Fore.WHITE)
 
+def clear():
+    if name == 'nt':
+        system('cls')
+    else:
+        system('clear')
+    
 
 def do_banner():
     banner = random.choice([banner_1, banner_2])
     print(banner)
+    time.sleep(1)
+    clear()
 
+def getrandomcolor():
+    return random.choice([Fore.LIGHTGREEN_EX, Fore.LIGHTMAGENTA_EX, Fore.LIGHTWHITE_EX, Fore.LIGHTYELLOW_EX, Fore.MAGENTA, Fore.RED, Fore.WHITE, Fore.YELLOW, Fore.CYAN, Fore.GREEN, Fore.LIGHTBLUE_EX, Fore.LIGHTCYAN_EX])
 
 do_banner()
 
@@ -193,12 +203,6 @@ def send_email():
     main()
 
 
-def clear():
-    if name == 'nt':
-        system('cls')
-    else:
-        system('clear')
-    main()
 
 
 def set_smtp():
@@ -286,7 +290,13 @@ def converter():
 
 def emailsMenu():
     
-    print(Fore.LIGHTGREEN_EX + "\nE-MAIL MENU\n" + Fore.RESET)
+    print(getrandomcolor() + '''███████╗      ███╗   ███╗ █████╗ ██╗██╗     ███████╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+██╔════╝      ████╗ ████║██╔══██╗██║██║     ██╔════╝    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+█████╗  █████╗██╔████╔██║███████║██║██║     ███████╗    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+██╔══╝  ╚════╝██║╚██╔╝██║██╔══██║██║██║     ╚════██║    ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+███████╗      ██║ ╚═╝ ██║██║  ██║██║███████╗███████║    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+╚══════╝      ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝╚══════╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                                                              ''' + Fore.RESET)
     print(Fore.GREEN +
           '''\n[0] Check e-mails in db\n[1] Send e-mails\n[2] Set e-mail settings\n\n[69] Quit\n[99] Clear \n[88] Back to main menu''' + Fore.RESET)
     try:
@@ -303,17 +313,25 @@ def emailsMenu():
         quit()
     elif function == 99:
         clear()
+        emailsMenu()
     elif function == 88:
         clear()
+        main()
     else:
-        system('clear')
+        clear()
         print(Fore.RED + "Sorry, i don't know that function")
         emailsMenu()
 
 
 def smtpMenu():
     
-    print(Fore.LIGHTGREEN_EX + "\nSMTP MENU\n"+ Fore.RESET)
+    print(getrandomcolor() + '''███████╗███╗   ███╗████████╗██████╗     ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+██╔════╝████╗ ████║╚══██╔══╝██╔══██╗    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+███████╗██╔████╔██║   ██║   ██████╔╝    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+╚════██║██║╚██╔╝██║   ██║   ██╔═══╝     ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+███████║██║ ╚═╝ ██║   ██║   ██║         ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+╚══════╝╚═╝     ╚═╝   ╚═╝   ╚═╝         ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                                              '''+ Fore.RESET)
     server.check()
     print(Fore.GREEN + '''\n[0] Check SMTP settings\n[1] Set SMTP settings\n\n[69] Quit\n[99] Clear \n[88] Back to main menu''')
     try:
@@ -328,8 +346,10 @@ def smtpMenu():
         quit()
     elif function == 99:
         clear()
+        smtpMenu()
     elif function == 88:
         clear()
+        main()
     else:
         system('clear')
         print(Fore.RED + "Sorry, i dont't know that function" + Fore.RESET)
@@ -337,7 +357,13 @@ def smtpMenu():
 
 def dbMenu():
     
-    print(Fore.LIGHTGREEN_EX + "\nDB MENU\n" + Fore.RESET)
+    print(getrandomcolor() + '''██████╗ ██████╗     ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+██╔══██╗██╔══██╗    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+██║  ██║██████╔╝    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+██║  ██║██╔══██╗    ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+██████╔╝██████╔╝    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+╚═════╝ ╚═════╝     ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                          ''' + Fore.RESET)
     print(Fore.YELLOW + '''\n[0] Add adress into DB\n[1] Add adresses from file\n\n[69] Quit\n[99] Clear \n[88] Back to main menu''')
     try:
         function = int(input(Fore.CYAN + "\nChoose function: " + Fore.RESET))
@@ -351,19 +377,44 @@ def dbMenu():
         quit()
     elif function == 99:
         clear()
+        dbMenu()
     elif function == 88:
         clear()
+        main()
     else:
-        system('clear')
+        clear()
         print(Fore.RED + "Sorry, i don't know that function" + Fore.RESET)
         dbMenu()
+
+
+def help():
+    clear()
+    print(getrandomcolor() + '''██╗  ██╗███████╗██╗     ██████╗ 
+██║  ██║██╔════╝██║     ██╔══██╗
+███████║█████╗  ██║     ██████╔╝
+██╔══██║██╔══╝  ██║     ██╔═══╝ 
+██║  ██║███████╗███████╗██║     
+╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     
+                                ''' + Fore.RESET)
+    print(Fore.LIGHTMAGENTA_EX + "Note: " + Fore.LIGHTYELLOW_EX +"Сначала добавьте адреса электронных почт в базу данных в меню Базы Данных.\nЗатем установите подключение к SMTP серверу в меню SMTP.\nВ меню E-mail задайте данные для рассылки\nProfit!" + Fore.RESET)
+
+    input(getrandomcolor() + "\n\nPress Enter to continue..." + Fore.RESET)
+    clear()
+    main()
+
 
 
 def settingsMenu():
     print()
 
 def main():
-    print(Fore.RED + "\nMAIN MENU\n" + Fore.RESET)
+    print(getrandomcolor() + '''███╗   ███╗ █████╗ ██╗███╗   ██╗    ███╗   ███╗███████╗███╗   ██╗██╗   ██╗
+████╗ ████║██╔══██╗██║████╗  ██║    ████╗ ████║██╔════╝████╗  ██║██║   ██║
+██╔████╔██║███████║██║██╔██╗ ██║    ██╔████╔██║█████╗  ██╔██╗ ██║██║   ██║
+██║╚██╔╝██║██╔══██║██║██║╚██╗██║    ██║╚██╔╝██║██╔══╝  ██║╚██╗██║██║   ██║
+██║ ╚═╝ ██║██║  ██║██║██║ ╚████║    ██║ ╚═╝ ██║███████╗██║ ╚████║╚██████╔╝
+╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                                          ''' + Fore.RESET)
     screen1 = print(Fore.LIGHTBLUE_EX + '''\n[0] e-mails menu\n[1] SMTP menu\n[2] DB\n[3] Settings\n\n[69] Quit\n[99] Clear''' + Fore.RESET)
     try:
         target = int(input(Fore.CYAN + "\nChoose function: " + Fore.RESET))
@@ -371,6 +422,7 @@ def main():
         print(Fore.RED+"It's not a number!" + Fore.RESET)
         time.sleep(0.5)
         clear()
+        main()
     if target == 0:
         # E-MAILS MENU
         system('clear')
@@ -387,8 +439,11 @@ def main():
         quit()
     elif target == 99:
         clear()
+        main()
+    elif target == 101:
+        help()
     else:
-        system('clear')
+        clear()
         print(Fore.RED + "Function is undefinded, please try again" + Fore.RESET)
         main()
 
